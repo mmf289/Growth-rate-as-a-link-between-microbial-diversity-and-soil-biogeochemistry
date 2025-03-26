@@ -1,4 +1,4 @@
-# Microbial-growth-in-soil
+# Growth rate as a link between microbial diversity and soil biogeochemistry
 
 This repo contains code necessary to recreate Figure 2 in ["Growth rate as a link between microbial diversity and soil biogeochemistry"](https://doi.org/10.1038/s41559-024-02520-7) 
 
