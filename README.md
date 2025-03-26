@@ -24,4 +24,8 @@ Image: Victor Leshyk
 
 ![Figure 2](https://github.com/user-attachments/assets/8ae77bf9-0d59-48ef-9932-0e33c525f9aa)
 
+a) Published estimates of relative growth rates of soil microbial assemblages in agricultural, forest, grassland and tundra ecosystems. Measurements were made using IRMS-enabled H218O-DNA SIP, H218O-DNA qSIP, thymidine (Tdr) incorporation, leucine (Leu) incorporation, 2H2O-lipid SIP or soil carbon mass balance modelling. The y axis is log transformed. Study information is provided in Supplementary Data 1. 
 
+b) Distribution of relative growth rates of amplicon sequence variants measured by H218O-DNA qSIP in five ecosystems: tropical forest, temperate grassland, temperate conifer forest, boreal forest and moist acidic tundra. The x axis is log transformed. 
+
+c) Distribution of relative growth rates of bacterial and archaeal phyla. The x axis is log transformed. Study information is provided in Supplementary Data 2. In a and c, the middle lines correspond to median values, the lower and upper edges correspond to the first and third quartiles and the whiskers extend to the highest and lowest points within 150% of the interquartile range.
