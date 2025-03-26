@@ -10,5 +10,5 @@ This manuscript discusses how in situ growth rates of soil microorganisms can be
 
 ## Scripts  
 
-1. ["Figure 2"](https://htmlpreview.github.io/?https://github.com/mmf289/Microbial-growth-in-soil/blob/main/docs/Figure-2-markdown.knit.html) 
+1. ["Figure 2"](https://htmlpreview.github.io/?https://github.com/mmf289/Microbial-growth-in-soil/blob/main/docs/Figure-2-markdown.knit.html): Visualizes assemblage- and population-level measurements of microbial growth rates.
 
