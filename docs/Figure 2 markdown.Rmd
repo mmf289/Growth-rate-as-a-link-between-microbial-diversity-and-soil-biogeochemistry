@@ -1,0 +1,148 @@
+---
+title: ''
+author: "Megan Foley"
+date: "2024-06-19"
+output: html_document
+---
+
+### Code used to visualize relative growth rates of soil microbial assemblages and populations in multiple ecosystems.
+
+#### 1. Load packages & data sets
+
+-   **Assemblage-level data**: A synthesis of published estimates of in-situ soil microbial growth rates at the assemblage level used to create Figure 2a. This data set is available in the SI (Supplementary Data 1) and on GitHub.
+
+-   **Population-level (qSIP) data**: A synthesis of published estimates of in-situ soil bacterial growth rates at the level of individual amplicon sequence variants. Data were obtained by H~2~^18^O qSIP and used to create Figure 2b, c. Please contact Megan Foley ([megan.foley\@unil.ch](mailto:mmf289@nau.edu){.email}) for data availability.
+
+```{r, message=FALSE, warning=FALSE, results='hold'}
+library(ggplot2)
+library(scales)
+library(patchwork)
+library(dplyr)
+library(ggforce)
+library(kableExtra)
+
+assemblage.data = read.csv("~/desktop/Supplementary dataset 1.csv", header=TRUE, as.is= TRUE)
+qsip.data = read.csv("~/desktop/qSIP database for Foley et al_final_for_Fig_1_for_public_redacted.csv", header=TRUE, as.is= TRUE) #email corresponding author for ASV level qSIP data (Megan Foley - mmf289@nau.edu)
+
+```
+
+#### 2. Minor formatting changes for assemblage level data
+
+```{r, message=FALSE, warning=FALSE, results='hold'}
+#Minor formatting of assemblage level data
+colnames(assemblage.data) = c("Secondary.Source", "Reference", "Paper", 
+                   "Observaton", "Method", "Incub.length.d", "Depth", "Slurry", 
+                   "Incub.temp.C", "Ecosystem", "RGR.per.day", "SD.RGR", "N")   
+
+assemblage.data$Method = factor(assemblage.data$Method, levels=c("H218O SIP with IRMS",
+                                               "thymidine incorporation",
+                                               "leucine incorporation",
+                                               "LH-SIP",
+                                               "qSIP",
+                                               "soil C mass balance modeling",
+                                               "direct cell counts"))
+```
+
+#### **3. Take a look at the data sets.** 
+
+Please note that some metadata for population-level estimates of growth, like site names, were replaced with placeholder names. If you need any additional context about the experimental metadata, please feel free to contact me directly.
+
+```{r, message=FALSE, warning=FALSE}
+options(knitr.table.format = "html")
+head(assemblage.data) %>% kbl(caption = "assemblage level estimates") %>% kable_styling()
+head(qsip.data) %>% kbl(caption = "population level estimates") %>% kable_styling()
+```
+
+#### 4. Compute relative growth rates for qsip data
+
+qSIP computes the mass of ^18^O from H~2~^18^O incorporated into microbial DNA during DNA synthesis in units of excess atom fraction (EAF) ^18^O. Here we apply a detection limit of 0.002 to our measurements of EAF ^18^O and use these data to compute relative growth rates of amplicon sequence variants.
+
+```{r, message=FALSE, warning=FALSE, results = 'hold'}
+#compute relative growth rates for qsip data
+qsip.data[qsip.data$eaf_corrected < 0.002, "eaf_corrected"] <- 0 #set lower detection limit
+
+qsip.data = qsip.data %>% group_by(experiment, site, time_point, treatment, replicate, taxon_id) %>% 
+  mutate(rgr = log(1/(1-eaf_corrected/eaf_max)) * 1/time) #compute growth rate
+```
+
+#### 5. Plot assemblage-level growth rates by ecosystem
+
+```{r, message=FALSE, warning=FALSE}
+nums= c(0.001, 0.01, 0.1, 1) #y-axis breaks
+cols <- c("#D55E00", "#E69F00", "#F0E442", "#009E73", "#56B4E9", "#0072B2", "#CC79A7")
+
+ggplot(assemblage.data, aes(x=Ecosystem, y=RGR.per.day)) +
+  geom_point(aes(fill = Method),size=2, position = position_jitter(), pch = 21)+
+  scale_y_continuous(trans = "log10",limits=c(0.00085,2), breaks = nums, label = label_number()) +
+  geom_boxplot(outlier.shape = NA, alpha=0.5)+
+  theme_bw(base_size=30) +
+  labs(y=expression(bold(paste("relative growth rate (day",""^{-1}, ")")))) +
+  scale_fill_manual(values = cols, name="method") +
+  theme(legend.text = element_text(family = "helvetica", size=13, hjust = 0,margin = margin(r = 30, unit = "pt")),
+        legend.position = "bottom",
+        legend.spacing = unit(-10, "pt"), 
+        legend.key.height = unit(8, "pt"), 
+        legend.spacing.x = unit(1, "pt"), 
+        legend.key.width  = unit(15, "pt"), 
+        legend.margin=margin(t = 0, unit='cm'),    
+        legend.box.spacing = margin(15),
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_text(family = "helvetica",size=13, color = "black", face ="bold"),
+        axis.title.y =element_text(family = "helvetica",size=13, color = "black", face ="bold"),
+        axis.text.x = element_text(family = "helvetica",size=13, color = "black",angle = 45, vjust = 1, hjust=1, face ="bold"),
+        panel.grid.minor=element_blank(),
+        panel.grid.major=element_blank(),
+        axis.ticks = element_line(size=0.5)) + guides(fill = guide_legend(ncol = 2))
+```
+
+#### 6. Plot distribution of population-level growth rates measured via qSIP
+
+```{r, message=FALSE, warning=FALSE}
+numbers=c(.001, .01, .1, 1) #x-axis breaks
+
+ggplot(qsip.data, aes(x = rgr)) + 
+  scale_x_continuous(trans = "log10", breaks=c(0, 0.001, 0.010, 0.100, 1), limits=c(NA,1)) +
+  geom_histogram(aes(y = ..density..*(100)),color = "darkblue", fill="#1f77b460") + 
+  ylab("frequency (%)") + 
+  xlab(expression(bold(paste("relative growth rate (day",""^{-1}, ")")))) +
+  theme_bw(base_size=30)+
+  theme(plot.title = element_text(family = "helvetica",hjust = 0.5, size=17),
+        axis.text.y = element_text(family = "helvetica",size=13, color = "black", face="bold"),
+        axis.title.y = element_text(family = "helvetica",size=13, face="bold"),
+        axis.text.x = element_text(family = "helvetica",size=13, color = "black", angle = 45, hjust=1, face="bold"),
+        axis.title.x=element_text(family = "helvetica",size=13, face="bold"),
+        panel.grid.minor=element_blank(),
+        panel.grid.major=element_blank(),
+        axis.ticks=element_line(size=0.5),
+        axis.ticks.length=unit(0.05,"inch"),
+        legend.background = element_rect(fill="transparent")) +
+  annotate("text", x=0.0015, y=75, label= "n=46,987", size = 4)
+```
+
+#### 7. Plot distribution of population-level growth rates by phylum 
+
+```{r, message=FALSE, warning=FALSE}
+qsip.data.2 <- qsip.data %>%
+  dplyr::group_by(Phylum) %>%
+  dplyr::filter(n() > 50)
+
+ggplot(qsip.data.2, aes(y = reorder(qsip.data.2$Phylum,qsip.data.2$rgr, median), x = rgr)) + 
+  scale_x_continuous(trans = "log10", breaks=c(0, 0.001, 0.010, 0.100, 1), limits=c(NA,1)) +
+  scale_y_discrete(limits = rev) +
+  geom_sina(color="#1f77b4",size=0.05)+
+  geom_boxplot(outlier.shape = NA, alpha=0.5) +
+  theme_bw(base_size=30)+
+  labs(x=expression(bold(paste("relative growth rate (day",""^{-1}, ")")))) +
+  theme(plot.title = element_text(family = "helvetica",hjust = 0.75, size=17),
+        axis.text.y = element_text(family = "helvetica",size=12, color = "black",  face="bold"),
+        axis.text.x = element_text(family = "helvetica",size=13, color = "black", angle = 45, hjust=1, face="bold"),
+        axis.title.x=element_text(family = "helvetica",size=13,  face="bold"),
+        axis.title.y = element_blank(),
+        axis.ticks.length=unit(0.05,"inch"),
+        panel.grid.minor=element_blank(),
+        panel.grid.major=element_blank(),
+        axis.ticks=element_line(size=0.5),
+        legend.background = element_rect(fill="transparent"),
+        legend.position = "none")
+```
