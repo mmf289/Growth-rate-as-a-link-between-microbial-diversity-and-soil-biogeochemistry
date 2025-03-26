@@ -2,7 +2,7 @@
 
 This repo contains code necessary to recreate Figure 2 in ["Growth rate as a link between microbial diversity and soil biogeochemistry"](https://doi.org/10.1038/s41559-024-02520-7) 
 
-Code to perform additional analyses used in the manuscript is coming soon. If you need additional information in the mean time, please feel free to reach out to me at ["megan.foley@unil.ch"](megan.foley@unil.ch) 
+Code to perform additional analyses used in the manuscript is coming soon. If you need additional information in the mean time, please feel free to reach out to me at [megan.foley@unil.ch](megan.foley@unil.ch) 
 
 ## Manuscript overview
 
